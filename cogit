@@ -20,6 +20,12 @@ function print_status() {
     fi
     local modified=$(git status | grep modified | awk '{print $2}')
 
+    if [ -z "$deleted" ] && [ -z "$new" ] && [ -z "$modified" ]; then
+        echo -e "${BLUE}(${branch})${NC}"
+        echo -e "${GRAY}No changes${NC}"
+        exit 0
+    fi
+
     echo -e "${BLUE}(${branch})${NC}"
     if [ ! -z "$new" ]; then
         echo -e "NEW FILE(S):"
