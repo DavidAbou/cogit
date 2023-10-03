@@ -7,6 +7,8 @@ ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 GRAY='\033[1;30m'
 
+output=$(env | grep PATH | grep -c "/usr/bin")
+
 if [ "$EUID" -ne 0 ]; then
     echo -e "${ORANGE}Please run as root${NC}"
     exit
@@ -26,6 +28,6 @@ else
     echo -e "${RED}cogit installation failed${NC}"
 fi
 
-if [ $(env | grep PATH | grep -c "/usr/bin") -eq 0 ]; then
+if [ $output -eq 0 ]; then
     echo -e "${ORANGE}Please add /usr/bin to your PATH${NC}"
 fi
