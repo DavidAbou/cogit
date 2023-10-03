@@ -4,15 +4,15 @@ changelog:
           - ignore-for-release
         authors:
           - DavidAbou
-      categories:
-        - title: Breaking Changes 🛠
-          labels:
-            - Semver-Major
-            - breaking-change
-        - title: Exciting New Features 🎉
-          labels:
-            - Semver-Minor
-            - enhancement
-        - title: Other Changes
-          labels:
-            - "*"
+        categories:
+            - title: Breaking Changes 🛠
+            labels:
+                - Semver-Major
+                - breaking-change
+            - title: Exciting New Features 🎉
+            labels:
+                - Semver-Minor
+                - enhancement
+            - title: Other Changes
+            labels:
+                - "*"
