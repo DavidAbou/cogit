@@ -1,0 +1,141 @@
+#!/bin/bash
+
+NC='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+GRAY='\033[1;30m'
+
+files=""
+type=""
+msg=""
+branch="$(git branch | grep \* | awk '{print $2}')"
+
+function print_status() {
+    local deleted=$(git status | grep deleted | awk '{print $2}')
+    local new=$(git status | grep "$(git ls-files --others --exclude-standard)" | awk '{print $1}')
+    local modified=$(git status | grep modified | awk '{print $2}')
+
+    echo -e "${BLUE}(${branch})${NC}"
+    if [ ! -z "$new" ]; then
+        echo -e "NEW FILE(S):"
+        for file in $new; do
+            echo -e " - ${GREEN}${file}${NC}"
+        done
+    fi
+    if [ ! -z "$deleted" ]; then
+        echo -e "DELETED FILE(S):"
+        for file in $deleted; do
+            echo -e " - ${RED}${file}${NC}"
+        done
+    fi
+    if [ ! -z "$modified" ]; then
+        echo -e "MODIFIED FILE(S):"
+        for file in $modified; do
+            echo -e " - ${ORANGE}${file}${NC}"
+        done
+    fi
+}
+
+function add_files() {
+    echo -e "${GRAY}Enter files you want to push (separated by space or '.' for all):${NC}"
+    echo -n "> "
+    read -r f
+
+    if [ -z "$f" ]; then
+        echo "No files entered"
+        exit 1
+    fi
+
+    if [ "$f" == "." ]; then
+        files="--all"
+    else
+        files=$f
+    fi
+}
+
+function commit() {
+    local available_types=("fix" "feat" "test" "build" "ci" "refactor" "docs" "style" "perf")
+
+    echo -e "${GRAY}Enter the type of commit (Available: fix, feat, test, build, ci, refactor, docs, style, perf):${NC}"
+    echo -n "> "
+    read -r t
+
+    if [ -z "$t" ]; then
+        echo "No type entered"
+        exit 1
+    fi
+
+    if [[ ! " ${available_types[@]} " =~ " ${t} " ]]; then
+        echo "Invalid type"
+        exit 1
+    fi
+
+    echo -e "${GRAY}Enter the commit message:${NC}"
+    echo -n "> "
+    read -r m
+
+    type=$t
+    msg=$m
+}
+
+function summary() {
+    local tracked="$(git status | grep "$(git ls-files --others --exclude-standard)" | awk '{print $1}')"
+
+    tracked+=" $(git status | grep modified | awk '{print $2}')"
+    tracked+=" $(git status | grep deleted | awk '{print $2}')"
+    echo "SUMMARY:"
+    echo -e "${BLUE}(${branch})${NC}"
+
+    if [ $files == "--all" ]; then
+        for file in $tracked; do
+            echo -e " - ${GREEN}${file}${NC} - ${type}: ${msg}"
+        done
+    else
+        for file in $files; do
+            echo -e " - ${GREEN}${file}${NC} - ${type}: ${msg}"
+        done
+    fi
+
+    echo -ne "${GRAY}Is this correct? [Y/n]${NC} "
+    read -r c
+
+    case $c in
+        [yY][eE][sS]|[yY])
+            echo "Pushing..."
+            ;;
+        *)
+            echo "Aborting..."
+            exit 1
+            ;;
+    esac
+}
+
+function push() {
+    git add $files
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Error adding files${NC}"
+        exit 1
+    fi
+    git commit -m "$type: $msg"
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Error committing files${NC}"
+        exit 1
+    fi
+    git push
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Error pushing files${NC}"
+        exit 1
+    fi
+}
+
+function main() {
+    print_status
+    add_files
+    commit
+    summary
+    push
+}
+
+main
