@@ -1,24 +1,24 @@
 name: CI
 
 on:
-    push:
-        branches: [ "main" ]
-    pull_request:
-        branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-          - uses: actions/checkout@v4.1.0
+    steps:
+      - uses: actions/checkout@v4.1.0
 
-          - name: Install cogit
-            run: |
-              sudo ./install.sh
-              if [[ $? -ne 0 ]]; then
-                echo "Failed when installing cogit"
-                exit 1
-              fi
+      - name: Install cogit
+        run: |
+          sudo ./install.sh
+          if [[ $? -ne 0 ]]; then
+            echo "Failed when installing cogit"
+            exit 1
+          fi
